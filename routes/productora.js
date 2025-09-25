@@ -46,8 +46,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const {id} = req.params;    
-        const productora = await Product
-ora.findById(id);
+        const productora = await Productora.findById(id);
         if (!productora) {
             return res.status(404).json({message: 'Productora no encontrada'});
         }
