@@ -101,8 +101,7 @@ router.delete('/:id', async (req, res) => {
         if (!productora) {
             return res.status(404).json({message: 'Productora no encontrada'});
         }
-        await
-            Productora.findByIdAndDelete(id);   
+        await Productora.findByIdAndDelete(id);   
         res.json({message: 'Productora eliminada'});
     }
     catch (error) {

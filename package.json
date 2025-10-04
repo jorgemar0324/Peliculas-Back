@@ -2,7 +2,8 @@
   "name": "peliculas_backend",
   "version": "1.0.0",
   "main": "server.js",
-  "scripts": {    
+  "scripts": {   
+    "start": "node server.js", 
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,5 +19,11 @@
     "express-validator": "^7.2.1",
     "mongodb": "^6.19.0",
     "mongoose": "^8.18.0"
+  },
+  "engines":{
+    "node": "18.x",
+    "npm": "9.x"  
   }
+
+
 }

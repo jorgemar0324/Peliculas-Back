@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const Tipo = require('../models/Tipo');
 const { validationResult, check } = require('express-validator');
+const Media = require('../models/Media');
 
 const router = Router();
 
@@ -85,21 +86,38 @@ router.put('/:id',
         }
     });
 
-// Eliminar tipo por id
+
 router.delete('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const tipo = await Tipo.findById(id);
-        if (!tipo) {
-            return res.status(404).json({ message: 'Tipo no encontrado' });
-        }
-        await tipo.remove();
-        res.json({ message: 'Tipo eliminado' });
+  try {
+    const { id } = req.params;
+
+    // Verificar si el género está siendo usado en algún Media
+    const mediaConEsteTipo = await Media.findOne({ tipo: id });
+    
+    if (mediaConEsteTipo) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'No se puede eliminar el tipo porque está siendo usado en uno o más medios',
+        //mediaAsociado: mediaConEsteGenero.titulo 
+      });
     }
-    catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error al eliminar el tipo' });
+
+    // Si no está siendo usado, proceder con la eliminación
+    const tipoEliminado = await Tipo.findByIdAndDelete(id);
+    
+    if (!tipoEliminado) {
+      return res.status(404).json({ success: false, message: 'Tipo no encontrado' });
     }
+
+    res.json({ 
+      success: true, 
+      message: 'Tipo eliminado correctamente',
+      data: tipoEliminado 
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 

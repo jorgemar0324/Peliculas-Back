@@ -1,6 +1,7 @@
 const {Router} = require('express');
 const Genero = require('../models/Genero');
 const {validationResult, check} = require('express-validator');
+const Media = require('../models/Media');
 
 const router = Router();
 
@@ -92,7 +93,7 @@ router.put('/:id',
 );
 
 // Eliminar un genero por ID
-router.delete('/:id', async (req, res) => {
+/*router.delete('/:id', async (req, res) => {
     try {
         const {id} = req.params;
         let genero = await Genero.findById(id);
@@ -106,7 +107,40 @@ router.delete('/:id', async (req, res) => {
         console.error(error);
         res.status(500).json({message: 'Error al eliminar el genero'});
     }
-}); 
+}); */
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Verificar si el género está siendo usado en algún Media
+    const mediaConEsteGenero = await Media.findOne({ genero: id });
+    
+    if (mediaConEsteGenero) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'No se puede eliminar el género porque está siendo usado en uno o más medios',
+        //mediaAsociado: mediaConEsteGenero.titulo 
+      });
+    }
+
+    // Si no está siendo usado, proceder con la eliminación
+    const generoEliminado = await Genero.findByIdAndDelete(id);
+    
+    if (!generoEliminado) {
+      return res.status(404).json({ success: false, message: 'Género no encontrado' });
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Género eliminado correctamente',
+      data: generoEliminado 
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 
 module.exports = router;
